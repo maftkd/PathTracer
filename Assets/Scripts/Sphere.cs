@@ -11,6 +11,7 @@ public class Sphere : MonoBehaviour
     private static float[] _sphereData;
     private static int numSpheres;
     private int _sphereIndex;
+    private static List<Sphere> _spheres = new();
 
     public MaterialData material;
     // Start is called before the first frame update
@@ -47,6 +48,7 @@ public class Sphere : MonoBehaviour
         {
             _sphereIndex = numSpheres;
             numSpheres++;
+            _spheres.Add(this);
         }
         
         _sphereData[_sphereIndex * STRIDE + 0] = transform.position.x;
@@ -57,6 +59,29 @@ public class Sphere : MonoBehaviour
         
         Shader.SetGlobalFloatArray("_SphereData", _sphereData);
         Shader.SetGlobalFloat("_NumSpheres", numSpheres);
+    }
+
+    private void OnDestroy()
+    {
+        for(int i = _sphereIndex * STRIDE; i < numSpheres * STRIDE; i++)
+        {
+            _sphereData[i] = _sphereData[i + STRIDE];
+        }
+
+        foreach (Sphere sphere in _spheres)
+        {
+            if(sphere._sphereIndex > _sphereIndex)
+            {
+                sphere._sphereIndex--;
+            }
+        }
+
+        numSpheres--;
+        if (_sphereData != null)
+        {
+            Shader.SetGlobalFloatArray("_SphereData", _sphereData);
+            Shader.SetGlobalFloat("_NumSpheres", numSpheres);
+        }
     }
 
     // Update is called once per frame

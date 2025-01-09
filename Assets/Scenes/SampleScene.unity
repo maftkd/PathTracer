@@ -727,6 +727,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pathTraceShader: {fileID: 4800000, guid: a9472df01b1bb46aa852da161c7482b4, type: 3}
+  numSamples: 16
+  antiAliasing: 0.2
+  maxBounces: 7
 --- !u!1 &699319354
 GameObject:
   m_ObjectHideFlags: 0
@@ -1498,7 +1501,7 @@ MonoBehaviour:
   onDeselect:
     m_PersistentCalls:
       m_Calls: []
-  disableDeletion: 0
+  disableDeletion: 1
   transformable: {fileID: 1944046574}
 --- !u!135 &1944046576
 SphereCollider:
