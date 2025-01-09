@@ -25,6 +25,12 @@ public class EditorCam : MonoBehaviour
             //mouse movement to rotate
             float mouseX = Input.GetAxis("Mouse X");
             float mouseY = Input.GetAxis("Mouse Y");
+            
+            #if UNITY_WEBGL && !UNITY_EDITOR
+            mouseX *= 0.1f;
+            mouseY *= 0.1f;
+            #endif
+            
             transform.forward = Quaternion.Euler(Vector3.up * (mouseX * cameraLookSpeed)) * transform.forward;
             transform.rotation *= Quaternion.AngleAxis(-mouseY * cameraLookSpeed, Vector3.right);
 
