@@ -1,6 +1,4 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.EventSystems;
@@ -14,10 +12,21 @@ public class Selectable : MonoBehaviour
     private bool _isSelected;
 
     public bool disableDeletion;
+
+    public Transformable transformable;
     // Start is called before the first frame update
     void Start()
     {
-        
+        if (transformable != null)
+        {
+            onSelect.AddListener(transformable.EnableTransformation); 
+            onDeselect.AddListener(transformable.DisableTransformation);
+        }
+    }
+
+    private void OnApplicationQuit()
+    {
+        selected = null;
     }
 
     // Update is called once per frame
@@ -48,6 +57,7 @@ public class Selectable : MonoBehaviour
 
     public void Select()
     {
+        Debug.Log("hey");
         if (selected != null)
         {
             selected.Deselect();
@@ -66,6 +76,7 @@ public class Selectable : MonoBehaviour
 
     private void OnMouseDown()
     {
+        Debug.Log("yo");
         if (!EventSystem.current.IsPointerOverGameObject())
         {
             Select();

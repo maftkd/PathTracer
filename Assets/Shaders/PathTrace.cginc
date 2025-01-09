@@ -5,6 +5,9 @@ float _SphereData[1000];
 fixed _NumSpheres;
 fixed _SphereStride;
 
+float _MaterialData[1000];
+fixed _MaterialStride;
+
 struct Ray
 {
     float3 origin;
