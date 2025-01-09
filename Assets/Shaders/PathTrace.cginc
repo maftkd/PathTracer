@@ -30,6 +30,22 @@ float random(inout uint state)
     result = (result >> 22u) ^ result;
     return result / 4294967296.0;
 }
+// axis aligned box centered at the origin, with size boxSize
+float2 boxIntersection( in float3 ro, in float3 rd, float3 boxSize, out float3 outNormal ) 
+{
+    float3 m = 1.0/rd; // can precompute if traversing a set of aligned boxes
+    float3 n = m*ro;   // can precompute if traversing a set of aligned boxes
+    float3 k = abs(m)*boxSize;
+    float3 t1 = -n - k;
+    float3 t2 = -n + k;
+    float tN = max( max( t1.x, t1.y ), t1.z );
+    float tF = min( min( t2.x, t2.y ), t2.z );
+    if( tN>tF || tF<0.0) return float2(-1.0, -1.0); // no intersection
+    outNormal = (tN>0.0) ? step(float3(1,1,1)*tN,t1) : // ro ouside the box
+                           step(t2,float3(1,1,1)*tF);  // ro inside the box
+    outNormal *= -sign(rd);
+    return float2( tN, tF );
+}
 
 //https://iquilezles.org/articles/intersectors/
 float2 sphIntersect(float3 ro, float3 rd, float3 center, float radius )
@@ -38,7 +54,7 @@ float2 sphIntersect(float3 ro, float3 rd, float3 center, float radius )
     float b = dot( oc, rd );
     float c = dot( oc, oc ) - radius*radius;
     float h = b*b - c;
-    if( h<0.0 ) return float3(-1, -1 , -1); // no intersection
+    if( h<0.0 ) return float2(-1, -1); // no intersection
     h = sqrt( h );
     return float2( -b-h, -b+h );
 }
@@ -57,6 +73,7 @@ void rayTrace(Ray ray, out HitInfo hit)
     {
         float3 spherePos = float3(_SphereData[i * _SphereStride + 0], _SphereData[i * _SphereStride + 1], _SphereData[i * _SphereStride + 2]);
         float2 hitTest = sphIntersect(ray.origin, ray.direction, spherePos, _SphereData[i * _SphereStride + 3]);
+        //float2 hitTest = float2(-1,-1);
         if(hitTest.y >= 0 && hitTest.x > 0)
         {
             if(hitTest.x < minT)
