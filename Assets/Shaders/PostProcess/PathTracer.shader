@@ -52,6 +52,30 @@ Shader "Hidden/PathTracer"
                 Ray ray;
                 ray.origin = _WorldSpaceCameraPos;
                 ray.direction = normalize(viewPoint - ray.origin);
+
+                float minT = 1000000;
+                HitInfo hit;
+                for(int i = 0; i < _NumSpheres; i++)
+                {
+                    float3 spherePos = float3(_SphereData[i * _SphereStride + 0], _SphereData[i * _SphereStride + 1], _SphereData[i * _SphereStride + 2]);
+                    float2 hitTest = sphIntersect(ray.origin, ray.direction, spherePos, _SphereData[i * _SphereStride + 3]);
+                    if(hitTest.y >= 0 && hitTest.x > 0)
+                    {
+                        minT = min(minT, hitTest.x);
+                        hit.distance = hitTest.x;
+                        hit.sphereIndex = i;
+                    }
+                }
+                if(minT < 1000000)
+                {
+                    float3 spherePos = float3(_SphereData[hit.sphereIndex * _SphereStride + 0],
+                        _SphereData[hit.sphereIndex * _SphereStride + 1], _SphereData[hit.sphereIndex * _SphereStride + 2]);
+                    float3 hitPoint = ray.origin + ray.direction * hit.distance;
+                    float3 normal = normalize(hitPoint - spherePos);
+                    return float4(normal, 1);
+                }
+
+                
                 return fixed4(ray.direction, 1);
 
 
