@@ -6,11 +6,13 @@ using UnityEngine;
 public class Sphere : MonoBehaviour
 {
     private const int MAX_SPHERES = 100;
-    private const int STRIDE = 4;
+    private const int STRIDE = 5;
     
     private static float[] _sphereData;
     private static int numSpheres;
     private int _sphereIndex;
+
+    public MaterialData material;
     // Start is called before the first frame update
     void Start()
     {
@@ -36,24 +38,22 @@ public class Sphere : MonoBehaviour
             Shader.SetGlobalFloat("_SphereStride", STRIDE);
             numSpheres = 0;
         }
-        if(numSpheres < MAX_SPHERES && _sphereIndex < 0)
+        else if (numSpheres >= MAX_SPHERES)
         {
-            _sphereData[numSpheres * STRIDE + 0] = transform.position.x;
-            _sphereData[numSpheres * STRIDE + 1] = transform.position.y;
-            _sphereData[numSpheres * STRIDE + 2] = transform.position.z;
-            _sphereData[numSpheres * STRIDE + 3] = transform.localScale.x * 0.5f;
-            
+            return;
+        }
+
+        if (_sphereIndex < 0)
+        {
             _sphereIndex = numSpheres;
-            
             numSpheres++;
         }
-        else if (_sphereIndex >= 0)
-        {
-            _sphereData[_sphereIndex * STRIDE + 0] = transform.position.x;
-            _sphereData[_sphereIndex * STRIDE + 1] = transform.position.y;
-            _sphereData[_sphereIndex * STRIDE + 2] = transform.position.z;
-            _sphereData[_sphereIndex * STRIDE + 3] = transform.localScale.x * 0.5f;
-        }
+        
+        _sphereData[_sphereIndex * STRIDE + 0] = transform.position.x;
+        _sphereData[_sphereIndex * STRIDE + 1] = transform.position.y;
+        _sphereData[_sphereIndex * STRIDE + 2] = transform.position.z;
+        _sphereData[_sphereIndex * STRIDE + 3] = transform.localScale.x * 0.5f;
+        _sphereData[_sphereIndex * STRIDE + 4] = MaterialManager.Instance.GetMaterialIndex(material);
         
         Shader.SetGlobalFloatArray("_SphereData", _sphereData);
         Shader.SetGlobalFloat("_NumSpheres", numSpheres);

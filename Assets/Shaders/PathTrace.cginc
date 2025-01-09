@@ -20,6 +20,14 @@ struct HitInfo
     float distance;
 };
 
+struct Material
+{
+    float3 albedo;
+    //float3 emission;
+    float roughness;
+    float metallic;
+};
+
 //https://iquilezles.org/articles/intersectors/
 float2 sphIntersect(float3 ro, float3 rd, float3 center, float radius )
 {

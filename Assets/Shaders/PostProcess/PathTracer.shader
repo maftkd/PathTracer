@@ -12,6 +12,8 @@ Shader "Hidden/PathTracer"
         Pass
         {
             CGPROGRAM
+// Upgrade NOTE: excluded shader from DX11, OpenGL ES 2.0 because it uses unsized arrays
+#pragma exclude_renderers d3d11 gles
             #pragma vertex vert
             #pragma fragment frag
 
@@ -72,7 +74,13 @@ Shader "Hidden/PathTracer"
                         _SphereData[hit.sphereIndex * _SphereStride + 1], _SphereData[hit.sphereIndex * _SphereStride + 2]);
                     float3 hitPoint = ray.origin + ray.direction * hit.distance;
                     float3 normal = normalize(hitPoint - spherePos);
-                    return float4(normal, 1);
+                    int matIndex = _SphereData[hit.sphereIndex * _SphereStride + 4];
+                    Material m;
+                    m.albedo = float3(_MaterialData[matIndex * _MaterialStride + 0], _MaterialData[matIndex * _MaterialStride + 1],
+                        _MaterialData[matIndex * _MaterialStride + 2]);
+                    return float4(m.albedo, 1);
+                    
+                    //return float4(normal, 1);
                 }
 
                 
