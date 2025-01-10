@@ -8,4 +8,9 @@ public class MaterialData : ScriptableObject
     public Color albedo;
     public float roughness;
     public float metallic;
+
+    public void UpdateMaterialData()
+    {
+        
+    }
 }

@@ -29,7 +29,7 @@ public class MaterialManager : MonoBehaviour
     {
     }
 
-    void UpdateMaterialData(MaterialData mat)
+    public void UpdateMaterialData(MaterialData mat)
     {
         if (_materialData == null || _materialData.Length == 0)
         {
@@ -41,13 +41,20 @@ public class MaterialManager : MonoBehaviour
         }
 
         int index = materials.Count;
+        if (materials.Contains(mat))
+        {
+            index = materials.IndexOf(mat);
+        }
+        else
+        {
+            materials.Add(mat);
+        }
         //Debug.Log($"index: {index}, materials.Count: {materials.Count}, _materialData length: {_materialData.Length}");
         _materialData[index * MATERIAL_STRIDE] = mat.albedo.r;
         _materialData[index * MATERIAL_STRIDE + 1] = mat.albedo.g;
         _materialData[index * MATERIAL_STRIDE + 2] = mat.albedo.b;
         _materialData[index * MATERIAL_STRIDE + 3] = mat.roughness;
         _materialData[index * MATERIAL_STRIDE + 4] = mat.metallic;
-        materials.Add(mat);
         
         Shader.SetGlobalFloatArray("_MaterialData", _materialData);
         Shader.SetGlobalFloat("_MaterialStride", MATERIAL_STRIDE);

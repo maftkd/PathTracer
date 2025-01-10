@@ -727,7 +727,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pathTraceShader: {fileID: 4800000, guid: a9472df01b1bb46aa852da161c7482b4, type: 3}
-  numSamples: 8
+  numSamples: 4
   antiAliasing: 0.2
   maxBounces: 3
 --- !u!1 &699319354
@@ -1455,7 +1455,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 256f7fd45617440e88de4439b77f6dd9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  material: {fileID: 11400000, guid: 3c83925baf0af43beacf1ad5600663fd, type: 2}
+  material: {fileID: 11400000, guid: 56f04f83eb9cc4a93bcdbb05c97a6112, type: 2}
 --- !u!114 &1944046574
 MonoBehaviour:
   m_ObjectHideFlags: 0
