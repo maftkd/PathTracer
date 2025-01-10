@@ -109,3 +109,27 @@ void rayTrace(Ray ray, out HitInfo hit)
         //col = (1.0 - a) * float3(1.0, 1.0, 1.0) + a * float3(0.5, 0.7, 1.0);
     }
 }
+
+float3 getRandomVectorInHemisphere(float3 normal, uint rngState)
+{
+    for(int i = 0; i < 10; i++)
+    {
+        float3 testVec = float3(random(rngState) * 2 - 1, random(rngState) * 2 - 1, random(rngState) * 2 - 1);
+        float mag = length(testVec);
+        if(mag > 1)
+        {
+            continue;
+        }
+        else
+        {
+            testVec /= mag;
+            float dt = dot(normal, testVec);
+            if(dt < 0)
+            {
+                testVec = -testVec;
+            }
+            return testVec;
+        }
+    }
+    return 0;
+}

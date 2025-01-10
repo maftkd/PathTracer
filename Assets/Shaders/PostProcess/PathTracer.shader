@@ -153,7 +153,8 @@ Shader "Hidden/PathTracer"
                         else
                         {
                             ray.origin = hit.position;
-                            ray.direction = reflect(ray.direction, hit.normal);
+                            ray.direction = getRandomVectorInHemisphere(hit.normal, rngState);
+                            //ray.direction = reflect(ray.direction, hit.normal);
                         }
                     }
                     if(lightIndex == 999999)
@@ -163,6 +164,14 @@ Shader "Hidden/PathTracer"
                     }
                     else
                     {
+                        /*
+                        float3 curCol = hits[lightIndex].col;
+                        for(int j = lightIndex - 1; j >= 0; j--)
+                        {
+                            HitInfo hit = hits[j];
+                            curCol = evaluateBrdf(hit.rayIn, hit.rayOut, hit.normal, curCol, hit.material);
+                        }
+                        */
                         col.rgb += lightIndex / _MaxBounces;
                         //col.rgb += float3(1,0,0);
                     }
