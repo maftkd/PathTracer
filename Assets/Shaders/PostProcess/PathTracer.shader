@@ -44,6 +44,7 @@ Shader "Hidden/PathTracer"
             float _AntiAliasing;
             float _MaxBounces;
             float _ProgressiveRendering;
+            float _DofBlur;
 
             fixed4 frag (v2f IN) : SV_Target
             {
@@ -58,6 +59,7 @@ Shader "Hidden/PathTracer"
                 float3 camRight = _CamLocalToWorld._m00_m10_m20;
                 float3 camUp = _CamLocalToWorld._m01_m11_m21;
                 float aa = _AntiAliasing * 0.0001;
+                float dofBlur = _DofBlur;
 
                 //init rng
                 uint2 pixCoords = IN.uv * _ScreenParams.xy;
@@ -69,7 +71,8 @@ Shader "Hidden/PathTracer"
                 for(int i = 0; i < _NumSamples; i++)
                 {
                     Ray ray;
-                    ray.origin = _WorldSpaceCameraPos;
+                    float3 jitteredOrigin = _WorldSpaceCameraPos + camRight * (random(rngState) - 0.5) * dofBlur + camUp * (random(rngState) - 0.5) * dofBlur;
+                    ray.origin = jitteredOrigin;
                     float3 jitteredViewPoint = viewPoint + camRight * (random(rngState) - 0.5) * aa + camUp * (random(rngState) - 0.5) * aa;
                     ray.direction = normalize(jitteredViewPoint - ray.origin);
                     uint lightIndex = 999999;

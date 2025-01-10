@@ -17,6 +17,7 @@ public class PathTracer : MonoBehaviour, IPostProcessLayer
     public bool progressiveRendering;
     private bool _prevProgressive;
 
+
     public static PathTracer Instance;
 
     void Awake()
