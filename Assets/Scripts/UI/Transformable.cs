@@ -35,6 +35,7 @@ public class Transformable : MonoBehaviour
     {
         transform.position = newPos;
         OnMoved?.Invoke();
+        PathTracer.Instance.ResetAccumulation();
     }
 
     public void EnableTransformation()

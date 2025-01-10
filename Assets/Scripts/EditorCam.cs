@@ -31,8 +31,12 @@ public class EditorCam : MonoBehaviour
             mouseY *= 0.1f;
             #endif
             
-            transform.forward = Quaternion.Euler(Vector3.up * (mouseX * cameraLookSpeed)) * transform.forward;
-            transform.rotation *= Quaternion.AngleAxis(-mouseY * cameraLookSpeed, Vector3.right);
+            if(mouseX !=0 || mouseY != 0)
+            {
+                transform.forward = Quaternion.Euler(Vector3.up * (mouseX * cameraLookSpeed)) * transform.forward;
+                transform.rotation *= Quaternion.AngleAxis(-mouseY * cameraLookSpeed, Vector3.right);
+                PathTracer.Instance.ResetAccumulation();
+            }
 
             //movement
             Vector3 movement = Vector3.zero;
@@ -70,6 +74,7 @@ public class EditorCam : MonoBehaviour
                 movement.Normalize();
                 float speed = cameraMoveSpeed * baseSpeedMult * (Input.GetKey(KeyCode.LeftShift) ? cameraBoostMult : 1);
                 transform.position += movement * (speed * Time.deltaTime);
+                PathTracer.Instance.ResetAccumulation();
             }
         }
     }

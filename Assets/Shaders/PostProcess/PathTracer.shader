@@ -39,10 +39,11 @@ Shader "Hidden/PathTracer"
             }
 
             sampler2D _AccumulationBuffer;
-            float _AccumulationFrames;
+            uint _AccumulationFrames;
             float _NumSamples;
             float _AntiAliasing;
             float _MaxBounces;
+            float _ProgressiveRendering;
 
             fixed4 frag (v2f IN) : SV_Target
             {
@@ -111,11 +112,16 @@ Shader "Hidden/PathTracer"
                 }
                 col.rgb /= _NumSamples;
 
-                float4 prevColor = tex2D(_AccumulationBuffer, IN.uv);
-                prevColor.rgb += col.rgb / _AccumulationFrames;
-                //return _AccumulationFrames / 1000;
+                if(_ProgressiveRendering > 0.5)
+                {
+                    
+                    float4 prevColor = tex2D(_AccumulationBuffer, IN.uv);
+                    float curFrameWeight = 1.0 / (_AccumulationFrames + 1);
+                    float accumulationWeight = 1 - curFrameWeight;
+                    col.rgb = col.rgb * curFrameWeight + prevColor.rgb * accumulationWeight;
+                }
 
-                return prevColor;
+                return col;
             }
             ENDCG
         }

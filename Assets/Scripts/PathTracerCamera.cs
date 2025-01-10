@@ -6,9 +6,6 @@ public class PathTracerCamera : MonoBehaviour
 {
     private Camera _mainCam;
 
-    private Vector3 _prevPos;
-    private Quaternion _prevRot;
-
     // Start is called before the first frame update
     void Start()
     {
@@ -23,13 +20,5 @@ public class PathTracerCamera : MonoBehaviour
         
         Shader.SetGlobalVector("_ViewParams", new Vector4(planeWidth, planeHeight, _mainCam.nearClipPlane, _mainCam.farClipPlane));
         Shader.SetGlobalMatrix("_CamLocalToWorld", _mainCam.transform.localToWorldMatrix);
-        
-        if(_mainCam.transform.position != _prevPos || _mainCam.transform.rotation != _prevRot)
-        {
-            PathTracer.Instance.ResetAccumulation();
-        }
-        
-        _prevPos = _mainCam.transform.position;
-        _prevRot = _mainCam.transform.rotation;
     }
 }
