@@ -727,9 +727,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pathTraceShader: {fileID: 4800000, guid: a9472df01b1bb46aa852da161c7482b4, type: 3}
-  numSamples: 4
+  numSamples: 8
   antiAliasing: 0.2
   maxBounces: 3
+  clearShader: {fileID: 10755, guid: 0000000000000000f000000000000000, type: 0}
 --- !u!1 &699319354
 GameObject:
   m_ObjectHideFlags: 0

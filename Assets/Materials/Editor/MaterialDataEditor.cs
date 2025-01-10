@@ -14,7 +14,8 @@ public class MaterialDataEditor : Editor
         if (Application.isPlaying)
         {
             MaterialManager.Instance.UpdateMaterialData(script);
-            //script.CreateAndUpdateColorPalette();
+            Debug.Log("Resetting accum");
+            PathTracer.Instance.ResetAccumulation();
         }
     }
 }

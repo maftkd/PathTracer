@@ -12,8 +12,6 @@ Shader "Hidden/PathTracer"
         Pass
         {
             CGPROGRAM
-// Upgrade NOTE: excluded shader from DX11, OpenGL ES 2.0 because it uses unsized arrays
-#pragma exclude_renderers d3d11 gles
             #pragma vertex vert
             #pragma fragment frag
 
@@ -40,12 +38,13 @@ Shader "Hidden/PathTracer"
                 return o;
             }
 
-            sampler2D _MainTex;
+            sampler2D _AccumulationBuffer;
+            float _AccumulationFrames;
             float _NumSamples;
             float _AntiAliasing;
             float _MaxBounces;
 
-            fixed4 frag (v2f i) : SV_Target
+            fixed4 frag (v2f IN) : SV_Target
             {
                 if(_NumSamples <= 0)
                 {
@@ -53,83 +52,16 @@ Shader "Hidden/PathTracer"
                 }
 
                 //init camera
-                float3 viewPointLocal = float3(i.uv - 0.5, 1) * _ViewParams.xyz;
+                float3 viewPointLocal = float3(IN.uv - 0.5, 1) * _ViewParams.xyz;
                 float3 viewPoint = mul(_CamLocalToWorld, float4(viewPointLocal, 1)).xyz;
                 float3 camRight = _CamLocalToWorld._m00_m10_m20;
                 float3 camUp = _CamLocalToWorld._m01_m11_m21;
                 float aa = _AntiAliasing * 0.0001;
 
                 //init rng
-                uint2 pixCoords = i.uv * _ScreenParams.xy;
+                uint2 pixCoords = IN.uv * _ScreenParams.xy;
                 uint pixIndex = pixCoords.y * _ScreenParams.x + pixCoords.x;
-                uint rngState = pixIndex;
-
-                /*
-                fixed4 col = 0;
-                for(int i = 0; i < _NumSamples; i++)
-                {
-                    Ray ray;
-                    ray.origin = _WorldSpaceCameraPos;
-                    float3 jitteredViewPoint = viewPoint + camRight * (random(rngState) - 0.5) * aa + camUp * (random(rngState) - 0.5) * aa;
-                    ray.direction = normalize(jitteredViewPoint - ray.origin);
-                    
-                    float3 hitCol = 0;
-                    HitInfo hit;
-                    rayTrace(ray, hit);
-                    col.rgb += hit.col;
-                }
-                col.rgb /= _NumSamples;
-                */
-
-                //avgCol = 0
-                //for i in samples
-                //  ray = camera.generateRay(sample)
-                //  HitInfo hits[MaxBounces]
-                //  uint bounces = 0
-                //  uint lightIndex = 999999
-                //  for bounces = 0; bounces <= maxBounces; bounces++
-                //      rayTrace(ray, out hitInfo)
-                //      hits[bounces] = hitInfo;
-                //      if !hitInfo.didHit
-                //          lightIndex = bounces
-                //          break;
-                //      else
-                //          ray = generateBounceRay(ray, hitInfo)
-                //  if lightIndex == 999999
-                //      avgCol += 0
-                //  else
-                //      curCol = hits[lightIndex].color
-                //      for j = lightIndex - 1; j >= 0; j--
-                //          hitInfo = hits[j];
-                //          curCol = evaluateBrdf(hitInfo.rayIn, hitInfo.rayOut, hitInfo.normal, curCol, hitInfo.material)
-                //      avgCol += curCol
-                //avgCol /= samples
-
-                //***********************************************************************************************************************
-                //debug code
-                //avgCol = 0
-                //for i in samples
-                //  ray = camera.generateRay(sample)
-                //  HitInfo hits[MaxBounces]
-                //  uint bounces = 0
-                //  uint lightIndex = 999999
-                //  for bounces = 0; bounces <= maxBounces; bounces++
-                //      rayTrace(ray, out hitInfo)
-                //      hits[bounces] = hitInfo;
-                //      if !hitInfo.didHit
-                //          lightIndex = bounces
-                //          break;
-                //      else
-                //          ray = generateBounceRay(ray, hitInfo)
-                //  if lightIndex == 999999
-                //      avgCol += 0
-                //  else
-                //      curCol = hits[lightIndex].color
-                //      for j = lightIndex - 1; j >= 0; j--
-                //          hitInfo = hits[j];
-                //          curCol = evaluateBrdf(hitInfo.rayIn, hitInfo.rayOut, hitInfo.normal, curCol, hitInfo.material)
-                //      avgCol += curCol
-                //avgCol /= samples
+                uint rngState = pixIndex + _AccumulationFrames * 719393;
 
                 float4 col = 0;
                 HitInfo hits[100];
@@ -179,7 +111,11 @@ Shader "Hidden/PathTracer"
                 }
                 col.rgb /= _NumSamples;
 
-                return col;
+                float4 prevColor = tex2D(_AccumulationBuffer, IN.uv);
+                prevColor.rgb += col.rgb / _AccumulationFrames;
+                //return _AccumulationFrames / 1000;
+
+                return prevColor;
             }
             ENDCG
         }
