@@ -133,3 +133,28 @@ float3 getRandomVectorInHemisphere(float3 normal, uint rngState)
     }
     return 0;
 }
+
+float3 getCosineWeightedDiffuseBounceDirection(float3 normal, uint rngState)
+{
+    for(int i = 0; i < 10; i++)
+    {
+        float3 testVec = float3(random(rngState) * 2 - 1, random(rngState) * 2 - 1, random(rngState) * 2 - 1);
+        float mag = length(testVec);
+        if(mag > 1)
+        {
+            continue;
+        }
+        else
+        {
+            testVec /= mag;
+            return normalize(normal + testVec);
+            //return testVec;
+        }
+    }
+    return 0;
+}
+
+float3 simpleBrdf(float3 lightCol, float3 albedo)
+{
+    return lightCol * albedo;
+}

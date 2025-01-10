@@ -57,7 +57,6 @@ public class Selectable : MonoBehaviour
 
     public void Select()
     {
-        Debug.Log("hey");
         if (selected != null)
         {
             selected.Deselect();
@@ -76,7 +75,6 @@ public class Selectable : MonoBehaviour
 
     private void OnMouseDown()
     {
-        Debug.Log("yo");
         if (!EventSystem.current.IsPointerOverGameObject())
         {
             Select();
