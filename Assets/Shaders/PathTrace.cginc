@@ -21,6 +21,7 @@ struct HitInfo
     float3 position;
     float3 normal;
     float3 col;
+    //float3 emission;
 };
 
 float random(inout uint state)
@@ -67,6 +68,7 @@ void rayTrace(Ray ray, out HitInfo hit)
     hit.distance = -1;
     hit.position = 0;
     hit.normal = 0;
+    //hit.emission = 0;
     
     //check against all spheres to find min
     for(int i = 0; i < _NumSpheres; i++)
@@ -100,13 +102,21 @@ void rayTrace(Ray ray, out HitInfo hit)
         float3 albedo = float3(_MaterialData[matIndex * _MaterialStride + 0], _MaterialData[matIndex * _MaterialStride + 1],
             _MaterialData[matIndex * _MaterialStride + 2]);
         hit.col = albedo;
+        float3 emission = float3(_MaterialData[matIndex * _MaterialStride + 3], _MaterialData[matIndex * _MaterialStride + 4],
+            _MaterialData[matIndex * _MaterialStride + 5]);
+        if(dot(emission, emission) > 0.01)
+        {
+            hit.col = emission;
+            hit.distance = -1;
+        }
+        //hit.emission = emission;
         //col = albedo;
     }
     else
     {
         float a = 0.5 * (ray.direction.y + 1.0);
-        hit.col = lerp(float3(1,1, 1), float3(0.5, 0.7, 1), a);
-        //col = (1.0 - a) * float3(1.0, 1.0, 1.0) + a * float3(0.5, 0.7, 1.0);
+        //hit.emission = lerp(float3(1,1, 1), float3(0.5, 0.7, 1), a);
+        hit.col = (1.0 - a) * float3(1.0, 1.0, 1.0) + a * float3(0.5, 0.7, 1.0);
     }
 }
 

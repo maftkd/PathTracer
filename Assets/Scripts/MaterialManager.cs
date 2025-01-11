@@ -7,8 +7,8 @@ public class MaterialManager : MonoBehaviour
     private List<MaterialData> materials = new();
 
     private float[] _materialData;
-    private const int MATERIAL_STRIDE = 5;
-    private const int MAX_MATERIALS = 100;
+    private const int MATERIAL_STRIDE = 8;
+    private const int MAX_MATERIALS = 60;
 
     public static MaterialManager Instance;
 
@@ -53,8 +53,11 @@ public class MaterialManager : MonoBehaviour
         _materialData[index * MATERIAL_STRIDE] = mat.albedo.r;
         _materialData[index * MATERIAL_STRIDE + 1] = mat.albedo.g;
         _materialData[index * MATERIAL_STRIDE + 2] = mat.albedo.b;
-        _materialData[index * MATERIAL_STRIDE + 3] = mat.roughness;
-        _materialData[index * MATERIAL_STRIDE + 4] = mat.metallic;
+        _materialData[index * MATERIAL_STRIDE + 3] = mat.emission.r;
+        _materialData[index * MATERIAL_STRIDE + 4] = mat.emission.g;
+        _materialData[index * MATERIAL_STRIDE + 5] = mat.emission.b;
+        _materialData[index * MATERIAL_STRIDE + 6] = mat.roughness;
+        _materialData[index * MATERIAL_STRIDE + 7] = mat.metallic;
         
         Shader.SetGlobalFloatArray("_MaterialData", _materialData);
         Shader.SetGlobalFloat("_MaterialStride", MATERIAL_STRIDE);

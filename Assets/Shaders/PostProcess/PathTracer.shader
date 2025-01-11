@@ -81,6 +81,8 @@ Shader "Hidden/PathTracer"
                         HitInfo hit;
                         rayTrace(ray, hit);
                         hits[bounce] = hit;
+                        //float emissionDt = dot(hit.emission, hit.emission);
+                        //if(emissionDt > 0.1)
                         if(hit.distance < 0)
                         {
                             lightIndex = bounce;
@@ -88,10 +90,17 @@ Shader "Hidden/PathTracer"
                         }
                         else
                         {
-                            ray.origin = hit.position;
-                            //ray.direction = getRandomVectorInHemisphere(hit.normal, rngState);
-                            ray.direction = getCosineWeightedDiffuseBounceDirection(hit.normal, rngState);
+                            ray.origin = hit.position + hit.normal * 0.001;
+                            //ray.direction = hit.normal;
+                            ray.direction = getRandomVectorInHemisphere(hit.normal, rngState);
+                            //ray.direction = getCosineWeightedDiffuseBounceDirection(hit.normal, rngState);
                             //ray.direction = reflect(ray.direction, hit.normal);
+                            /*
+                            if(ray.direction.x > 5)
+                            {
+                                return fixed4(1,0,1,1);
+                            }
+                            */
                         }
                     }
                     if(lightIndex == 999999)

@@ -6,6 +6,8 @@ using UnityEngine;
 public class MaterialData : ScriptableObject
 {
     public Color albedo;
+    [ColorUsage(false, true)]
+    public Color emission;
     public float roughness;
     public float metallic;
 
