@@ -15,7 +15,7 @@ public class MaterialDataEditor : Editor
         {
             MaterialManager.Instance.UpdateMaterialData(script);
             Debug.Log("Resetting accum");
-            PathTracer.Instance.ResetAccumulation();
+            //PathTracer.Instance.ResetAccumulation();
         }
     }
 }

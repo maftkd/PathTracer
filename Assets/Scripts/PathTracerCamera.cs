@@ -9,6 +9,10 @@ public class PathTracerCamera : MonoBehaviour
     public float focalDistance;
     [Range(0,1)]
     public float dofBlur;
+
+    private float _prevDofBlur;
+
+    private float _prevFocalDistance;
     // Start is called before the first frame update
     void Start()
     {
@@ -27,5 +31,12 @@ public class PathTracerCamera : MonoBehaviour
         
         //_mat.SetFloat("_FocalDistance", focalDistance);
         Shader.SetGlobalFloat("_DofBlur", dofBlur);
+        
+        if(_prevDofBlur != dofBlur || _prevFocalDistance != focalDistance)
+        {
+            PathTracer.Instance.ResetAccumulation();
+            _prevDofBlur = dofBlur;
+            _prevFocalDistance = focalDistance;
+        }
     }
 }

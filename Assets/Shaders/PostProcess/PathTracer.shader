@@ -58,7 +58,7 @@ Shader "Hidden/PathTracer"
                 float3 viewPoint = mul(_CamLocalToWorld, float4(viewPointLocal, 1)).xyz;
                 float3 camRight = _CamLocalToWorld._m00_m10_m20;
                 float3 camUp = _CamLocalToWorld._m01_m11_m21;
-                float aa = _AntiAliasing * 0.0001;
+                float aa = _AntiAliasing * 0.01;
                 float dofBlur = _DofBlur;
 
                 //init rng

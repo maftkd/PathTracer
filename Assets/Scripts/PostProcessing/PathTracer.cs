@@ -15,6 +15,7 @@ public class PathTracer : MonoBehaviour, IPostProcessLayer
     public Shader clearShader;
     private Material clearMat;
     public bool progressiveRendering;
+    public int maxAccumulationFrames;
     private bool _prevProgressive;
 
 
@@ -62,13 +63,19 @@ public class PathTracer : MonoBehaviour, IPostProcessLayer
         _mat.SetFloat("_ProgressiveRendering", progressiveRendering ? 1 : 0);
         _mat.SetInteger("_AccumulationFrames", _accumulationFrames);
         
-        RenderTexture tmp = RenderTexture.GetTemporary(source.width, source.height, 0, source.format);
-        Graphics.Blit(null, tmp, _mat);
-        Graphics.Blit(tmp, _accumulationBuffer);
-        RenderTexture.ReleaseTemporary(tmp);
+        if(_accumulationFrames < maxAccumulationFrames)
+        {
+            RenderTexture tmp = RenderTexture.GetTemporary(source.width, source.height, 0, source.format);
+            Graphics.Blit(null, tmp, _mat);
+            Graphics.Blit(tmp, _accumulationBuffer);
+            RenderTexture.ReleaseTemporary(tmp);
+        }
         Graphics.Blit(_accumulationBuffer, destination);
-        
-        _accumulationFrames++;
+
+        if (progressiveRendering)
+        {
+            _accumulationFrames++;
+        }
 
         if (progressiveRendering != _prevProgressive)
         {
