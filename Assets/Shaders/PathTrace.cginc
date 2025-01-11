@@ -1,11 +1,11 @@
 float4 _ViewParams;
 float4x4 _CamLocalToWorld;
 
-float _SphereData[1000];
+float _SphereData[500];
 fixed _NumSpheres;
 fixed _SphereStride;
 
-float _MaterialData[1000];
+float _MaterialData[500];
 fixed _MaterialStride;
 
 struct Ray

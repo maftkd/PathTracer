@@ -50,7 +50,7 @@ Shader "Hidden/PathTracer"
             {
                 if(_NumSamples <= 0)
                 {
-                    return fixed4(1,0,1,1);
+                    return fixed4(1,0,0,1);
                 }
 
                 //init camera
