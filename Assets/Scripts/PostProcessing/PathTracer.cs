@@ -62,7 +62,10 @@ public class PathTracer : MonoBehaviour, IPostProcessLayer
         _mat.SetFloat("_ProgressiveRendering", progressiveRendering ? 1 : 0);
         _mat.SetInteger("_AccumulationFrames", _accumulationFrames);
         
-        Graphics.Blit(null, _accumulationBuffer, _mat);
+        RenderTexture tmp = RenderTexture.GetTemporary(source.width, source.height, 0, source.format);
+        Graphics.Blit(null, tmp, _mat);
+        Graphics.Blit(tmp, _accumulationBuffer);
+        RenderTexture.ReleaseTemporary(tmp);
         Graphics.Blit(_accumulationBuffer, destination);
         
         _accumulationFrames++;

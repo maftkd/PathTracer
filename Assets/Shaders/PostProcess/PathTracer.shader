@@ -52,7 +52,7 @@ Shader "Hidden/PathTracer"
                 {
                     return fixed4(1,0,0,1);
                 }
-
+                
                 //init camera
                 float3 viewPointLocal = float3(IN.uv - 0.5, 1) * _ViewParams.xyz;
                 float3 viewPoint = mul(_CamLocalToWorld, float4(viewPointLocal, 1)).xyz;
