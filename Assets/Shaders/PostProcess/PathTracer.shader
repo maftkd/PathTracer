@@ -90,10 +90,10 @@ Shader "Hidden/PathTracer"
                         }
                         else
                         {
-                            ray.origin = hit.position + hit.normal * 0.001;
+                            ray.origin = hit.position + hit.normal * 0.0001;
                             //ray.direction = hit.normal;
-                            ray.direction = getRandomVectorInHemisphere(hit.normal, rngState);
-                            //ray.direction = getCosineWeightedDiffuseBounceDirection(hit.normal, rngState);
+                            //ray.direction = getRandomVectorInHemisphere(hit.normal, rngState);
+                            ray.direction = getCosineWeightedDiffuseBounceDirection(hit.normal, rngState);
                             //ray.direction = reflect(ray.direction, hit.normal);
                             /*
                             if(ray.direction.x > 5)

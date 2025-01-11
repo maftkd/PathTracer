@@ -52,7 +52,7 @@ public class PathTracer : MonoBehaviour, IPostProcessLayer
             {
                 _accumulationBuffer.Release();
             }
-            _accumulationBuffer = new RenderTexture(source.width, source.height, 0, source.format);
+            _accumulationBuffer = new RenderTexture(source.width, source.height, 0, RenderTextureFormat.ARGBFloat);
             Shader.SetGlobalTexture("_AccumulationBuffer", _accumulationBuffer);
             //_accumulationBuffer.enableRandomWrite = true;
             //_accumulationBuffer.Create();
@@ -65,7 +65,7 @@ public class PathTracer : MonoBehaviour, IPostProcessLayer
         
         if(_accumulationFrames < maxAccumulationFrames)
         {
-            RenderTexture tmp = RenderTexture.GetTemporary(source.width, source.height, 0, source.format);
+            RenderTexture tmp = RenderTexture.GetTemporary(source.width, source.height, 0, RenderTextureFormat.ARGBFloat);
             Graphics.Blit(null, tmp, _mat);
             Graphics.Blit(tmp, _accumulationBuffer);
             RenderTexture.ReleaseTemporary(tmp);
