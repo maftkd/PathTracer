@@ -20,7 +20,8 @@ struct HitInfo
     //int sphereIndex;
     float3 position;
     float3 normal;
-    float3 col;
+    int materialIndex;
+    //float3 col;
     //float3 emission;
 };
 
@@ -31,6 +32,24 @@ float random(inout uint state)
     result = (result >> 22u) ^ result;
     return result / 4294967296.0;
 }
+
+float3 jitterPoint(float3 pos, float3 right, float3 up, float amount, uint rngState)
+{
+    float2 jitterVec = 0;
+    for(int i = 0; i < 10; i++)
+    {
+        jitterVec = float2(random(rngState) * 2 - 1, random(rngState) * 2 - 1);
+        float mag = length(jitterVec);
+        if(mag <= 1)
+        {
+            break;
+        }
+    }
+
+    jitterVec *= amount;
+    return pos + right * jitterVec.x + up * jitterVec.y;
+}
+
 // axis aligned box centered at the origin, with size boxSize
 float2 boxIntersection( in float3 ro, in float3 rd, float3 boxSize, out float3 outNormal ) 
 {
@@ -98,10 +117,12 @@ void rayTrace(Ray ray, out HitInfo hit)
         hit.position = ray.origin + ray.direction * hit.distance;
         hit.normal = normalize(hit.position - spherePos);
         int matIndex = _SphereData[sphereIndex * _SphereStride + 4];
-        
+
+        hit.materialIndex = matIndex;
+        /*
         float3 albedo = float3(_MaterialData[matIndex * _MaterialStride + 0], _MaterialData[matIndex * _MaterialStride + 1],
             _MaterialData[matIndex * _MaterialStride + 2]);
-        hit.col = albedo;
+        //hit.col = albedo;
         float3 emission = float3(_MaterialData[matIndex * _MaterialStride + 3], _MaterialData[matIndex * _MaterialStride + 4],
             _MaterialData[matIndex * _MaterialStride + 5]);
         if(dot(emission, emission) > 0.01)
@@ -109,14 +130,19 @@ void rayTrace(Ray ray, out HitInfo hit)
             hit.col = emission;
             hit.distance = -1;
         }
+        */
         //hit.emission = emission;
         //col = albedo;
     }
     else
     {
+        hit.materialIndex = -1;
+        hit.normal = ray.direction;
+        /*
         float a = 0.5 * (ray.direction.y + 1.0);
         //hit.emission = lerp(float3(1,1, 1), float3(0.5, 0.7, 1), a);
         hit.col = (1.0 - a) * float3(1.0, 1.0, 1.0) + a * float3(0.5, 0.7, 1.0);
+        */
     }
 }
 
@@ -167,4 +193,40 @@ float3 getCosineWeightedDiffuseBounceDirection(float3 normal, uint rngState)
 float3 simpleBrdf(float3 lightCol, float3 albedo)
 {
     return lightCol * albedo;
+}
+
+float hitEmissive(HitInfo hit, out float3 emissionColor)
+{
+    emissionColor = float3(_MaterialData[hit.materialIndex * _MaterialStride + 3], _MaterialData[hit.materialIndex * _MaterialStride + 4],
+        _MaterialData[hit.materialIndex * _MaterialStride + 5]);
+    return(dot(emissionColor, emissionColor));
+}
+
+float hitMetallic(HitInfo hit)
+{
+    return _MaterialData[hit.materialIndex * _MaterialStride + 7];
+}
+
+float3 skyColor(float3 dir)
+{
+    float t = 0.5 * (dir.y + 1.0);
+    return lerp(float3(1,1,1), float3(0.5, 0.7, 1), t);
+}
+
+float3 hitColor(HitInfo hit)
+{
+    if(hit.materialIndex < 0)
+    {
+        return skyColor(hit.normal);
+    }
+    float3 emissionColor;
+    if(hitEmissive(hit, emissionColor) > 0.1)
+    {
+        return emissionColor;
+    }
+    else
+    {
+        return float3(_MaterialData[hit.materialIndex * _MaterialStride + 0], _MaterialData[hit.materialIndex * _MaterialStride + 1],
+            _MaterialData[hit.materialIndex * _MaterialStride + 2]);
+    }
 }

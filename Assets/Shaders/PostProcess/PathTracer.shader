@@ -71,11 +71,14 @@ Shader "Hidden/PathTracer"
                 for(int i = 0; i < _NumSamples; i++)
                 {
                     Ray ray;
-                    float3 jitteredOrigin = _WorldSpaceCameraPos + camRight * (random(rngState) - 0.5) * dofBlur + camUp * (random(rngState) - 0.5) * dofBlur;
+                    //float3 jitteredOrigin = _WorldSpaceCameraPos + camRight * (random(rngState) - 0.5) * dofBlur + camUp * (random(rngState) - 0.5) * dofBlur;
+                    float3 jitteredOrigin = jitterPoint(_WorldSpaceCameraPos, camRight, camUp, dofBlur, rngState);
                     ray.origin = jitteredOrigin;
-                    float3 jitteredViewPoint = viewPoint + camRight * (random(rngState) - 0.5) * aa + camUp * (random(rngState) - 0.5) * aa;
+                    //float3 jitteredViewPoint = viewPoint + camRight * (random(rngState) - 0.5) * aa + camUp * (random(rngState) - 0.5) * aa;
+                    float3 jitteredViewPoint = jitterPoint(viewPoint, camRight, camUp, aa, rngState);
                     ray.direction = normalize(jitteredViewPoint - ray.origin);
                     uint lightIndex = 999999;
+                    float3 foo;
                     for(int bounce = 0; bounce <= _MaxBounces; bounce++)
                     {
                         HitInfo hit;
@@ -83,7 +86,7 @@ Shader "Hidden/PathTracer"
                         hits[bounce] = hit;
                         //float emissionDt = dot(hit.emission, hit.emission);
                         //if(emissionDt > 0.1)
-                        if(hit.distance < 0)
+                        if(hit.distance < 0 || hitEmissive(hit, foo) > 0.1)
                         {
                             lightIndex = bounce;
                             break;
@@ -93,7 +96,11 @@ Shader "Hidden/PathTracer"
                             ray.origin = hit.position + hit.normal * 0.0001;
                             //ray.direction = hit.normal;
                             //ray.direction = getRandomVectorInHemisphere(hit.normal, rngState);
-                            ray.direction = getCosineWeightedDiffuseBounceDirection(hit.normal, rngState);
+                            float metallic = hitMetallic(hit);
+                            float3 diffuseDir = getCosineWeightedDiffuseBounceDirection(hit.normal, rngState);
+                            float3 specDir = reflect(ray.direction, hit.normal);
+                            ray.direction = lerp(diffuseDir, specDir, metallic);
+                            //ray.direction = getCosineWeightedDiffuseBounceDirection(hit.normal, rngState);
                             //ray.direction = reflect(ray.direction, hit.normal);
                             /*
                             if(ray.direction.x > 5)
@@ -110,12 +117,12 @@ Shader "Hidden/PathTracer"
                     }
                     else
                     {
-                        float3 curCol = hits[lightIndex].col;
+                        float3 curCol = hitColor(hits[lightIndex]);
                         for(int j = lightIndex - 1; j >= 0; j--)
                         {
                             HitInfo hit = hits[j];
                             //curCol = evaluateBrdf(hit.rayIn, hit.rayOut, hit.normal, curCol, hit.material);
-                            curCol = simpleBrdf(curCol, hit.col);
+                            curCol = simpleBrdf(curCol, hitColor(hit));
                         }
                         //col.rgb += lightIndex / _MaxBounces;
                         //col.rgb += float3(1,0,0);

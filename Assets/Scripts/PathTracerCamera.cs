@@ -6,6 +6,7 @@ public class PathTracerCamera : MonoBehaviour
 {
     private Camera _mainCam;
 
+    [Range(0, 50)]
     public float focalDistance;
     [Range(0,1)]
     public float dofBlur;

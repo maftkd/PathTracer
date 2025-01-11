@@ -86,7 +86,6 @@ public class PathTracer : MonoBehaviour, IPostProcessLayer
 
     public void ResetAccumulation()
     {
-        Debug.Log("Resetting accumulation");
         if(clearMat == null)
         {
             clearMat = new Material(clearShader);
