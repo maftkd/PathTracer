@@ -68,48 +68,50 @@ Shader "Hidden/PathTracer"
 
                 float4 col = 0;
                 HitInfo hits[100];
+                BounceInfo bounces[100];
                 for(int i = 0; i < _NumSamples; i++)
                 {
                     Ray ray;
-                    //float3 jitteredOrigin = _WorldSpaceCameraPos + camRight * (random(rngState) - 0.5) * dofBlur + camUp * (random(rngState) - 0.5) * dofBlur;
                     float3 jitteredOrigin = jitterPoint(_WorldSpaceCameraPos, camRight, camUp, dofBlur, rngState);
                     ray.origin = jitteredOrigin;
-                    //float3 jitteredViewPoint = viewPoint + camRight * (random(rngState) - 0.5) * aa + camUp * (random(rngState) - 0.5) * aa;
                     float3 jitteredViewPoint = jitterPoint(viewPoint, camRight, camUp, aa, rngState);
                     ray.direction = normalize(jitteredViewPoint - ray.origin);
                     uint lightIndex = 999999;
-                    float3 foo;
-                    for(int bounce = 0; bounce <= _MaxBounces; bounce++)
+                    for(int j = 0; j <= _MaxBounces; j++)
                     {
                         HitInfo hit;
                         rayTrace(ray, hit);
-                        hits[bounce] = hit;
-                        //float emissionDt = dot(hit.emission, hit.emission);
-                        //if(emissionDt > 0.1)
-                        if(hit.distance < 0 || hitEmissive(hit, foo) > 0.1)
+                        hits[j] = hit;
+                        if(hit.hitLight > 0.5)
                         {
-                            lightIndex = bounce;
+                            lightIndex = j;
                             break;
                         }
                         else
                         {
+                            BounceInfo bounce;
+                            bounce.wo = -ray.direction;
                             ray.origin = hit.position + hit.normal * 0.0001;
+                            float roughness = hitRoughness(hit);
+                            float metallic = hitMetallic(hit);
                             //ray.direction = hit.normal;
                             //ray.direction = getRandomVectorInHemisphere(hit.normal, rngState);
-                            float metallic = hitMetallic(hit);
+                            //ray.direction = getCosineWeightedDiffuseBounceDirection(hit.normal, rngState);
+
+                            //bounce.pdf = 0.5 * (1.0 / UNITY_PI + materialPdf(roughness, hit.normal, bounce.wo, halfway));
                             float3 diffuseDir = getCosineWeightedDiffuseBounceDirection(hit.normal, rngState);
                             float3 specDir = reflect(ray.direction, hit.normal);
-                            ray.direction = lerp(diffuseDir, specDir, metallic);
-                            //ray.direction = getCosineWeightedDiffuseBounceDirection(hit.normal, rngState);
-                            //ray.direction = reflect(ray.direction, hit.normal);
-                            /*
-                            if(ray.direction.x > 5)
-                            {
-                                return fixed4(1,0,1,1);
-                            }
-                            */
+                            bool isSpecularBounce = random(rngState) < metallic;
+                            ray.direction = lerp(diffuseDir, specDir, (1-roughness) * isSpecularBounce);
+
+                            bounce.isSpecular = isSpecularBounce;
+                            bounce.wi = ray.direction;
+                            
+                            float3 halfway = normalize(bounce.wo + bounce.wi);
+                            bounces[j] = bounce;
                         }
                     }
+                    //a ray that never reaches a light source
                     if(lightIndex == 999999)
                     {
                         //col.rgb += float3(9,0,9);
@@ -117,16 +119,19 @@ Shader "Hidden/PathTracer"
                     }
                     else
                     {
-                        float3 curCol = hitColor(hits[lightIndex]);
+                        float3 lightCol = hitLightCol(hits[lightIndex]);
                         for(int j = lightIndex - 1; j >= 0; j--)
                         {
                             HitInfo hit = hits[j];
+                            BounceInfo bounce = bounces[j];
+                            float metallic = hitMetallic(hit);
                             //curCol = evaluateBrdf(hit.rayIn, hit.rayOut, hit.normal, curCol, hit.material);
-                            curCol = simpleBrdf(curCol, hitColor(hit));
+                            float3 reflectance = lerp(simpleBrdf(hit), float3(1,1,1), bounce.isSpecular * (1 - metallic));// / dot(hit.normal, bounce.wi);
+                            //float3 reflectance = cookTorranceBrdf(hit, bounce) / bounce.pdf;
+                            lightCol *= reflectance;
+                            //lightCol = cookTorranceBrdf(lightCol, hit, bounce);
                         }
-                        //col.rgb += lightIndex / _MaxBounces;
-                        //col.rgb += float3(1,0,0);
-                        col.rgb += curCol;
+                        col.rgb += lightCol;
                     }
                 }
                 col.rgb /= _NumSamples;
