@@ -887,9 +887,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   pathTraceShader: {fileID: 4800000, guid: a9472df01b1bb46aa852da161c7482b4, type: 3}
-  numSamples: 2
+  numSamples: 4
   antiAliasing: 1
-  maxBounces: 4
+  maxBounces: 3
   clearShader: {fileID: 10755, guid: 0000000000000000f000000000000000, type: 0}
   progressiveRendering: 1
   maxAccumulationFrames: 3000

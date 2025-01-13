@@ -37,6 +37,7 @@ public class PathTracer : MonoBehaviour, IPostProcessLayer
     {
         _accumulationFrames = 0;
         Shader.SetGlobalInteger("_AccumulationFrames", _accumulationFrames);
+        Application.targetFrameRate = 60;
     }
 
     public void OnRenderImage(RenderTexture source, RenderTexture destination)
